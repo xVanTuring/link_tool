@@ -6,7 +6,7 @@ class NSSUpdateToolPanel(bpy.types.Panel):
     bl_label = "NSS Link Tool"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "NSS Addon Manager"
+    bl_category = "NSS Toolbox"
 
     def draw(self, context):
         text = "Update Watch" if context.scene.imitation else "Start Watch"
