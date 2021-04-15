@@ -1,3 +1,4 @@
+import os
 from bpy.types import Operator
 import bpy
 from . import async_loop
@@ -6,14 +7,18 @@ import socketio
 sio = socketio.AsyncClient()
 
 
-@sio.event
-async def connect():
+async def register_imitation():
     # TODO update `rooms` auto
     genuine_files = []
     for lib in bpy.data.libraries:
-        genuine_files.append(bpy.path.abspath(lib.filepath))
+        genuine_files.append(os.path.abspath(bpy.path.abspath(lib.filepath)))
     print("Watching Files: ", genuine_files)
     await sio.emit('register_imitation', {'genuine_files': genuine_files})
+
+
+@sio.event
+async def connect():
+    await register_imitation()
 
 
 @sio.event
@@ -21,7 +26,7 @@ async def genuine_update(data):
     print('genuine updated ', data['file_path'])
     print('reloading now')
     for lib in bpy.data.libraries:
-        if bpy.path.abspath(lib.filepath) == data['file_path']:
+        if os.path.abspath(bpy.path.abspath(lib.filepath)) == data['file_path']:
             lib.reload()
 
 
@@ -35,6 +40,8 @@ async def start_watch(server_url):
         await sio.connect(server_url)
         print("Start to wait now")
         await sio.wait()
+    else:
+        await register_imitation()
 
 
 class ImitationWatch_Async(async_loop.AsyncModalOperatorMixin, Operator):

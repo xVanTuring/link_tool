@@ -22,7 +22,12 @@ def connect(sid, environ):
 
 @sio.event
 async def register_imitation(sid, data):
+    rooms = sio.rooms(sid)
     genuine_files = data['genuine_files']
+
+    for room_id in rooms:
+        if room_id != sid and room_id not in genuine_files:
+            sio.leave_room(sid, room_id)
     for file_path in genuine_files:
         sio.enter_room(sid, file_path)
 

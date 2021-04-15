@@ -17,7 +17,7 @@ bl_info = {
     "author": "xVanTuring(@foxmail.com)",
     "blender": (2, 80, 0),
     "version": (1, 0, 0),
-    "description": "An Addon",
+    "description": "An Addon For link",
     "category": "Scene"
 }
 
