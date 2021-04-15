@@ -1,7 +1,6 @@
 import bpy
 from bpy.types import Operator
 from . import async_loop
-from . import common
 import socketio
 
 sio = socketio.AsyncClient()
@@ -15,9 +14,9 @@ async def connect():
     await sio.emit('genuine_update', {'file_path': bpy.data.filepath})
 
 
-async def notify():
+async def notify(server_url):
     if not sio.connected:
-        await sio.connect(common.server_url)
+        await sio.connect(server_url)
         await sio.wait()
     else:
         await sio.emit('genuine_update', {'file_path': bpy.data.filepath})
@@ -26,11 +25,12 @@ async def notify():
 class NotifyGenuineUpdate_Async(async_loop.AsyncModalOperatorMixin, Operator):
     bl_idname = "link_tool.genuine_update_notify"
     bl_label = "Notify Update"
-    bl_description = "1"
+    bl_description = "Start to notify"
 
     async def async_execute(self, context):
         context.scene.genuine = True
-        await notify()
+        server_url = context.preferences.addons[__package__].preferences.server_url
+        await notify(server_url)
 
 
 class NotifyGenuineUpdateStop_Async(async_loop.AsyncModalOperatorMixin, Operator):

@@ -1,7 +1,6 @@
 from bpy.types import Operator
 import bpy
 from . import async_loop
-from .import common
 import socketio
 
 sio = socketio.AsyncClient()
@@ -31,9 +30,9 @@ async def disconnect():
     await sio.disconnect()
 
 
-async def start_watch():
+async def start_watch(server_url):
     if not sio.connected:
-        await sio.connect(common.server_url)
+        await sio.connect(server_url)
         print("Start to wait now")
         await sio.wait()
 
@@ -45,7 +44,8 @@ class ImitationWatch_Async(async_loop.AsyncModalOperatorMixin, Operator):
 
     async def async_execute(self, context):
         context.scene.imitation = True
-        await start_watch()
+        server_url = context.preferences.addons[__package__].preferences.server_url
+        await start_watch(server_url)
 
 
 class ImitationWatch_Stop_Async(async_loop.AsyncModalOperatorMixin, Operator):
