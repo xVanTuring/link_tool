@@ -1,25 +1,21 @@
-import site
-import sys
-if site.getusersitepackages() not in sys.path:
-    sys.path.append(site.getusersitepackages())
-
-from . import async_loop
-from . import link_notify_op
-from . import ui
-from . import link_imitation_watch_op
-
-
-import bpy
-from bpy.app.handlers import persistent
-
 bl_info = {
     "name": "Link Tool",
     "author": "xVanTuring(@foxmail.com)",
     "blender": (2, 80, 0),
     "version": (1, 0, 0),
+    "location": "View3D > Properties > Link Tool",
     "description": "An Addon For link",
     "category": "Scene"
 }
+import site
+import sys
+
+from bpy.types import ConsoleLine
+if site.getusersitepackages() not in sys.path:
+    sys.path.append(site.getusersitepackages())
+
+import bpy
+from bpy.app.handlers import persistent
 
 
 @persistent
@@ -36,10 +32,21 @@ def load_handler(dummy):
 
 
 def register():
+    from . import async_loop
+    from . import ops
+    from . import install_lib
+    from . import preference
     async_loop.register()
-    link_notify_op.register()
-    link_imitation_watch_op.register()
-    ui.register()
+    if install_lib.has_libs():
+        from . import ui
+        from . import link_notify_op
+        from . import link_imitation_watch_op
+        link_notify_op.register()
+        link_imitation_watch_op.register()
+        ui.register()
+        install_lib.deps_status = True
+    preference.register()
+    ops.register()
 
     bpy.app.handlers.save_post.append(save_handler)
     bpy.app.handlers.load_post.append(load_handler)
@@ -48,7 +55,16 @@ def register():
 
 
 def unregister():
-    ui.unregister()
-    link_imitation_watch_op.unregister()
-    link_notify_op.unregister()
+    from . import async_loop
+    from . import ops
+    from . import preference
+    ops.unregister()
+    if "socketio" in globals():
+        from . import link_notify_op
+        from . import link_imitation_watch_op
+        from . import ui
+        ui.unregister()
+        link_imitation_watch_op.unregister()
+        link_notify_op.unregister()
     async_loop.unregister()
+    preference.unregister()
