@@ -1,5 +1,6 @@
 from aiohttp import web
 import socketio
+import os
 
 sio = socketio.AsyncServer()
 app = web.Application()
@@ -39,6 +40,14 @@ async def genuine_update(sid, data):
 
 
 @sio.event
+async def shutdown(sid, data):
+    print("Shuting down")
+    # TODO
+    # await app.shutdown()
+    # await app.cleanup()
+
+
+@sio.event
 def disconnect(sid):
     print('disconnect ', sid)
 
@@ -46,4 +55,7 @@ def disconnect(sid):
 app.router.add_get('/', index)
 
 if __name__ == '__main__':
+    # TODO: existing pid process
+    f = open(os.path.join(os.path.dirname(__file__), "server.pid"), "w")
+    f.write(str(os.getpid()))
     web.run_app(app, port=8173)

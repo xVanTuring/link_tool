@@ -11,6 +11,9 @@ OS = platform.system()
 IS_WIN = OS == 'Windows'
 IS_MAC = OS == 'Darwin'
 IS_LINUX = OS == 'Linux'
+python_path = sys.executable
+if bpy.app.version[2] < 90:
+    python_path = bpy.app.binary_path_python
 
 # adding user site-packages path to sys.path
 if site.getusersitepackages() not in sys.path:
@@ -20,9 +23,6 @@ if site.getusersitepackages() not in sys.path:
 def run_module_call(*args):
     """Run Blender Python with arguments on user access level"""
     module_args = ('-m', *args, '--user')
-    python_path = sys.executable
-    if bpy.app.version[2] < 90:
-        python_path = bpy.app.binary_path_python
     subprocess.check_call([python_path, *module_args], timeout=60.0)
 
 

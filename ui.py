@@ -3,10 +3,10 @@ import bpy
 
 class LinkToolPanel(bpy.types.Panel):
     bl_idname = "VIEW_3D_PT_link_tool"
-    bl_label = "NSS Link Tool"
+    bl_label = "Link Tool"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "NSS Toolbox"
+    bl_category = "Toolbox"
 
     def draw(self, context):
         text = "Update Watch" if context.scene.imitation else "Start Watch"
@@ -18,6 +18,9 @@ class LinkToolPanel(bpy.types.Panel):
             self.layout.operator("link_tool.imitation_watch_stop")
         if context.scene.genuine:
             self.layout.operator("link_tool.genuine_update_notify_stop")
+
+        self.layout.operator("link_tool.start_server")
+        self.layout.operator("link_tool.shutdown")
 
 
 def register():

@@ -29,11 +29,13 @@ class NotifyGenuineUpdate_Async(async_loop.AsyncModalOperatorMixin, Operator):
 
     async def async_execute(self, context):
         context.scene.genuine = True
-        server_url = context.preferences.addons[__package__].preferences.server_url
+        server_url = context.preferences.addons[
+            __package__].preferences.server_url
         await notify(server_url)
 
 
-class NotifyGenuineUpdateStop_Async(async_loop.AsyncModalOperatorMixin, Operator):
+class NotifyGenuineUpdateStop_Async(async_loop.AsyncModalOperatorMixin,
+                                    Operator):
     bl_idname = "link_tool.genuine_update_notify_stop"
     bl_label = "Stop Notify"
     bl_description = "Stop to notify"

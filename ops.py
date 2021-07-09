@@ -2,6 +2,13 @@ import bpy
 from bpy.types import Operator
 
 from . import install_lib
+from . import async_loop
+import socketio
+import subprocess
+import sys
+import os
+
+sio = socketio.AsyncClient()
 
 
 def ShowMessageBox(message="", title="Message Box", icon='INFO'):
@@ -46,10 +53,48 @@ class LinkToolOTInstallDeps(Operator):
         return {'FINISHED'}
 
 
-def register():
+class LinkToolShutdownServer_Async(async_loop.AsyncModalOperatorMixin,
+                                   Operator):
+    bl_idname = "link_tool.shutdown"
+    bl_label = "Shutdown Server"
+    bl_description = "Start to notify"
 
+    async def async_execute(self, context):
+        # server_url = context.preferences.addons[
+        #     __package__].preferences.server_url
+        # sio = socketio.AsyncClient()
+        # await sio.connect(server_url)
+        # print("shutdowning")
+        # await sio.emit('shutdown', {})
+        # TODO: shuting down
+        pass
+
+
+class LinkToolStartServer(Operator):
+
+    bl_idname = "link_tool.start_server"
+    bl_label = "Start Server"
+    bl_description = "Start server"
+
+    def execute(self, context):
+        python_path = sys.executable
+        if bpy.app.version[2] < 90:
+            python_path = bpy.app.binary_path_python
+        ADDON_DIR = os.path.join(os.path.dirname(__file__))
+
+        p = subprocess.Popen([python_path, 'server.py'],
+                             cwd=os.path.join(ADDON_DIR, "./server"))
+        print("Server started: ", p.pid)
+        return {'FINISHED'}
+
+
+def register():
     bpy.utils.register_class(LinkToolOTInstallDeps)
+    bpy.utils.register_class(LinkToolShutdownServer_Async)
+    bpy.utils.register_class(LinkToolStartServer)
 
 
 def unregister():
+    bpy.utils.unregister_class(LinkToolStartServer)
     bpy.utils.unregister_class(LinkToolOTInstallDeps)
+    bpy.utils.unregister_class(LinkToolShutdownServer_Async)
