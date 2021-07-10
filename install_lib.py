@@ -12,7 +12,7 @@ IS_WIN = OS == 'Windows'
 IS_MAC = OS == 'Darwin'
 IS_LINUX = OS == 'Linux'
 python_path = sys.executable
-if bpy.app.version[2] < 90:
+if bpy.app.version[1] < 90:
     python_path = bpy.app.binary_path_python
 
 # adding user site-packages path to sys.path
@@ -35,7 +35,8 @@ def has_libs():
     try:
         import socketio
         import aiohttp
-        return socketio is not None and aiohttp is not None
+        import psutil
+        return socketio is not None and aiohttp is not None and psutil is not None
     except ImportError:
         return False
 
@@ -44,7 +45,8 @@ def ensure_libs():
     try:
         import socketio
         import aiohttp
-        return socketio is not None and aiohttp is not None
+        import psutil
+        return socketio is not None and aiohttp is not None and psutil is not None
     except ImportError:
         try:
             if IS_MAC or IS_LINUX:
@@ -53,6 +55,7 @@ def ensure_libs():
             run_pip("wheel")
             run_pip("python-socketio")
             run_pip("aiohttp")
+            run_pip("psutil")
             return True
         except subprocess.SubprocessError as e:
             print("Something went wrong, unable to install py7zr", e)

@@ -1,11 +1,11 @@
 {
     "python.autoComplete.extraPaths": [
-        "/workspace/Dev/fake_bpy_modules_2.83-20200812"
+        "/workspace/Dev/fake_bpy_modules_2.93-20210701"
     ],
     "python.linting.flake8Enabled": false,
     "python.linting.enabled": false,
     "python.analysis.extraPaths": [
-        "/workspace/Dev/fake_bpy_modules_2.83-20200812"
+        "/workspace/Dev/fake_bpy_modules_2.93-20210701"
     ],
     "python.formatting.provider": "yapf",
     "python.linting.pylintEnabled": true,

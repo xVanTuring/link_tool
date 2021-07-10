@@ -3,12 +3,10 @@ from bpy.types import Operator
 
 from . import install_lib
 from . import async_loop
-import socketio
 import subprocess
 import sys
 import os
-
-sio = socketio.AsyncClient()
+from . import utils
 
 
 def ShowMessageBox(message="", title="Message Box", icon='INFO'):
@@ -60,14 +58,14 @@ class LinkToolShutdownServer_Async(async_loop.AsyncModalOperatorMixin,
     bl_description = "Start to notify"
 
     async def async_execute(self, context):
-        # server_url = context.preferences.addons[
-        #     __package__].preferences.server_url
-        # sio = socketio.AsyncClient()
-        # await sio.connect(server_url)
-        # print("shutdowning")
-        # await sio.emit('shutdown', {})
-        # TODO: shuting down
-        pass
+        import psutil
+        pid = utils.server_pid()
+        print("Killing PID", pid)
+        if pid:
+            p = psutil.Process(pid)
+            # p.terminate()
+            p.kill()
+            print("Killing Done!")
 
 
 class LinkToolStartServer(Operator):
@@ -78,12 +76,27 @@ class LinkToolStartServer(Operator):
 
     def execute(self, context):
         python_path = sys.executable
-        if bpy.app.version[2] < 90:
+        if bpy.app.version[1] < 90:
             python_path = bpy.app.binary_path_python
-        ADDON_DIR = os.path.join(os.path.dirname(__file__))
 
-        p = subprocess.Popen([python_path, 'server.py'],
-                             cwd=os.path.join(ADDON_DIR, "./server"))
+        ADDON_DIR = os.path.join(os.path.dirname(__file__))
+        if os.name == "nt":
+            CREATE_NEW_PROCESS_GROUP = 0x00000200
+            DETACHED_PROCESS = 0x00000008
+            p = subprocess.Popen([python_path, 'server.py'],
+                                 cwd=os.path.join(ADDON_DIR, "./server"),
+                                 stdin=None,
+                                 stdout=None,
+                                 stderr=None,
+                                 shell=True,
+                                 creationflags=DETACHED_PROCESS
+                                 | CREATE_NEW_PROCESS_GROUP)
+        else:
+            print(os.path.join(ADDON_DIR, "server", "server.py"))
+            p = subprocess.Popen([
+                "nohup", python_path,
+                os.path.join(ADDON_DIR, "server", "server.py")
+            ], )
         print("Server started: ", p.pid)
         return {'FINISHED'}
 

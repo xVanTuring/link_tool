@@ -1,4 +1,5 @@
 import bpy
+from . import utils
 
 
 class LinkToolPanel(bpy.types.Panel):
@@ -19,8 +20,11 @@ class LinkToolPanel(bpy.types.Panel):
         if context.scene.genuine:
             self.layout.operator("link_tool.genuine_update_notify_stop")
 
-        self.layout.operator("link_tool.start_server")
-        self.layout.operator("link_tool.shutdown")
+        self.layout.separator()
+        if not utils.has_server():
+            self.layout.operator("link_tool.start_server")
+        else:
+            self.layout.operator("link_tool.shutdown")
 
 
 def register():

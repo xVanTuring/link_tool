@@ -9,8 +9,9 @@ bl_info = {
 }
 import site
 import sys
-
-from bpy.types import ConsoleLine
+import os
+from . import install_lib
+from . import utils
 if site.getusersitepackages() not in sys.path:
     sys.path.append(site.getusersitepackages())
 
@@ -20,21 +21,27 @@ from bpy.app.handlers import persistent
 
 @persistent
 def save_handler(dummy):
-    if bpy.context.scene.genuine:
-        bpy.ops.link_tool.genuine_update_notify()
+    if install_lib.has_libs():
+        if bpy.context.scene.genuine:
+            bpy.ops.link_tool.genuine_update_notify()
 
 
 @persistent
 def load_handler(dummy):
-    print("Post Load")
-    if bpy.context.scene.imitation:
-        bpy.ops.link_tool.imitation_watch()
+    if install_lib.has_libs():
+        auto_start_server = bpy.context.preferences.addons[
+            __package__].preferences.auto_start_server
+        if auto_start_server and not utils.has_server():
+            bpy.ops.linkt_tool.start_server()
+            # TODO: Sleep
+
+        if bpy.context.scene.imitation:
+            bpy.ops.link_tool.imitation_watch()
 
 
 def register():
     from . import async_loop
     from . import ops
-    from . import install_lib
     from . import preference
     async_loop.register()
     if install_lib.has_libs():
